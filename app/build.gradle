@@ -53,4 +53,9 @@ dependencies {
     // LiveData
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.3.0"
 
+    // Firebase
+    implementation 'com.google.firebase:firebase-database-ktx:19.6.0'
+
 }
+
+apply plugin: 'com.google.gms.google-services'

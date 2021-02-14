@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "604832536482",
+    "project_id": "webrtc-videocall-7df77",
+    "storage_bucket": "webrtc-videocall-7df77.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:604832536482:android:0fe09752104bee722484fb",
+        "android_client_info": {
+          "package_name": "com.example.webrtc_videocallapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "604832536482-sup2tcr3h1od3psai2bh3qglftmliobi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD773KWDmlfoKEkjSh8EUzh01fER_rbFEI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "604832536482-sup2tcr3h1od3psai2bh3qglftmliobi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
