@@ -1,10 +1,8 @@
 package com.example.webrtc_videocallapp.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -19,6 +17,9 @@ private val listOfUsers = ArrayList<String>()
 
 class HomeViewModel : ViewModel() {
 
+    init {
+
+    }
 
     private var users = MutableLiveData<ArrayList<String>>()
     fun getUsers(): LiveData<ArrayList<String>> {

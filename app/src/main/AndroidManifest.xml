@@ -15,6 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WebRTCVideoCallApp"
         android:usesCleartextTraffic="true">
+        <activity android:name=".CallActivity"></activity>
         <activity
             android:name=".HomeActivity"
             android:theme="@style/Theme.WebRTCVideoCallAppHome" />
