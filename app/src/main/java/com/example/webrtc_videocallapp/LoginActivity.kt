@@ -39,8 +39,9 @@ class LoginActivity : AppCompatActivity() {
         val loginViewModel = ViewModelProvider(this).get(LoginViewModel::class.java)
 
         binding.loginButton.setOnClickListener {
-            val username = binding.usernameEt.text.toString()
+            var username = binding.usernameEt.text.toString()
             if (loginViewModel.isValidUsername(username)) {
+                username = loginViewModel.formatUsername(username)
                 loginViewModel.addUsernameToFirebase(username)
 
                 val intent = Intent(this, HomeActivity::class.java)

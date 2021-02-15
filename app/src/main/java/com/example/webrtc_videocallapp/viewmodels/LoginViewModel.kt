@@ -12,8 +12,13 @@ class LoginViewModel : ViewModel() {
         return username.isNotEmpty()
     }
 
+    fun formatUsername(username: String): String {
+        return username.replace(" ", "")
+    }
+
     fun addUsernameToFirebase(username: String) {
         firebaseRef.child(username).child("userCalling").setValue(username)
     }
+
 
 }
