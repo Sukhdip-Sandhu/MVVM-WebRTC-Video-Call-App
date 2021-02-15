@@ -16,9 +16,9 @@ let peer;
 
 function init(userId) {
   peer = new Peer(userId, {
-    host: "192.168.0.13",
-    port: 9000,
-    path: "/videocallapp",
+    host: "159.89.156.61",
+    port: 9001,
+    path: "/myapp",
   });
 
   peer.on("open", () => {
@@ -43,7 +43,7 @@ function listen() {
         call.answer(stream);
         call.on("stream", (remoteStream) => {
           remoteVideo.srcObject = remoteStream;
-
+          Android.onAnswerCall();
           remoteVideo.className = "primary-video";
           localVideo.className = "secondary-video";
         });
@@ -52,7 +52,6 @@ function listen() {
   });
 
     peer.on("close", () => {
-      console.log("CLOSED CONNECTION");
       localStream.getVideoTracks()[0].stop();
       localStream.getAudioTracks()[0].stop();
       peer = null;
@@ -99,23 +98,5 @@ function toggleAudio(b) {
 }
 
 function hangUpCall() {
-  console.log("Hanging up call!");
   peer.destroy();
 }
-
-// function listen() {
-//   peer.on("call", (call) => {
-//     navigator.getUserMedia({
-//       audio: true,
-//       video: {
-//         frameRate: 24,
-//         width: {
-//           min: 480,
-//           ideal: 720,
-//           max: 1280,
-//         },
-//         aspectRatio: 1.3333,
-//       },
-//     });
-//   });
-// }

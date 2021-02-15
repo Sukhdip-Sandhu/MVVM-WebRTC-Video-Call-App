@@ -2,4 +2,5 @@
     <string name="app_name">WebRTC-VideoCallApp</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
+    <string name="is_calling">___ is calling</string>
 </resources>

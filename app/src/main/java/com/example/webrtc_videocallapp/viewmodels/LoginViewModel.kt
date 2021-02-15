@@ -13,7 +13,7 @@ class LoginViewModel : ViewModel() {
     }
 
     fun addUsernameToFirebase(username: String) {
-        firebaseRef.child(username).child("isAvailable").setValue(true)
+        firebaseRef.child(username).child("userCalling").setValue(username)
     }
 
 }

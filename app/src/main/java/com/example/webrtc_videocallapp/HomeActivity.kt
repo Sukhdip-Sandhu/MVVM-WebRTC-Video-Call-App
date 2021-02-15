@@ -1,12 +1,12 @@
 package com.example.webrtc_videocallapp
 
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
+import android.view.View
 import android.webkit.PermissionRequest
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -15,12 +15,18 @@ import com.example.webrtc_videocallapp.databinding.ActivityHomeBinding
 import com.example.webrtc_videocallapp.javascript.JavascriptInterface
 import com.example.webrtc_videocallapp.ui.adapters.UsersAdapter
 import com.example.webrtc_videocallapp.viewmodels.HomeViewModel
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 private lateinit var binding: ActivityHomeBinding
-
 private lateinit var usersAdapter: UsersAdapter
-
 private lateinit var username: String
+private lateinit var homeViewModel: HomeViewModel
+
+private var firebaseRef = Firebase.database.getReference("users")
 
 class HomeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,26 +37,62 @@ class HomeActivity : AppCompatActivity() {
 
         setupRecyclerView()
 
-        usersAdapter.setOnItemClickListener { usernameToCall ->
-            Log.d("LOGCAT", "onCreate: ")
-            callJavascriptFunction("javascript:startCall(\"${usernameToCall}\")")
-//            val intent = Intent(this, CallActivity::class.java)
-//            intent.putExtra("usernameToCall", usernameToCall)
-//            startActivity(intent)
-        }
-
         username = intent.getStringExtra("username")!!
 
-        val homeViewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
-
+        homeViewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
         homeViewModel.setMyUsername(username)
-
-        homeViewModel.setEventListeners()
+        homeViewModel.setFirebaseValueEventListener()
 
         homeViewModel.getUsers().observe(this, Observer { listOfUsers ->
             usersAdapter.setUsersList(listOfUsers)
             usersAdapter.notifyDataSetChanged()
         })
+
+        homeViewModel.getIncomingCallerUsername().observe(this, Observer { incomingCallerUsername ->
+            binding.incomingCallLayout.visibility = View.VISIBLE
+            binding.incomingCallerName.text = "$incomingCallerUsername is calling"
+
+            binding.answerCallButton.setOnClickListener {
+                homeViewModel.startCall(incomingCallerUsername)
+                binding.callLayout.visibility = View.VISIBLE
+                binding.incomingCallLayout.visibility = View.INVISIBLE
+            }
+
+            binding.declineCallButton.setOnClickListener {
+                binding.incomingCallLayout.visibility = View.INVISIBLE
+            }
+        })
+
+        homeViewModel.getToggleAudio().observe(this, Observer { isAudio ->
+            binding.toggleAudioButton.setImageResource(if (isAudio) R.drawable.ic_baseline_mic_24 else R.drawable.ic_baseline_mic_off_24)
+        })
+
+        homeViewModel.getToggleVideo().observe(this, Observer { isVideo ->
+            binding.toggleVideoButton.setImageResource(if (isVideo) R.drawable.ic_baseline_videocam_24 else R.drawable.ic_baseline_videocam_off_24)
+        })
+
+        homeViewModel.runJavascriptFunction().observe(this, Observer { functionString ->
+            callJavascriptFunction(functionString)
+        })
+
+        usersAdapter.setOnItemClickListener { usernameToCall ->
+            Toast.makeText(this, "Calling $usernameToCall", Toast.LENGTH_SHORT).show()
+            homeViewModel.makeOutgoingCall(usernameToCall)
+        }
+
+        binding.hangUpButton.setOnClickListener {
+            binding.callLayout.visibility = View.INVISIBLE
+            homeViewModel.hangUpCall()
+            homeViewModel.initPeerClient(username)
+        }
+
+        binding.toggleAudioButton.setOnClickListener {
+            homeViewModel.toggleAudioButton()
+        }
+
+        binding.toggleVideoButton.setOnClickListener {
+            homeViewModel.toggleVideoButton()
+        }
 
         setupWebView()
 
@@ -67,26 +109,29 @@ class HomeActivity : AppCompatActivity() {
         binding.webView.settings.mediaPlaybackRequiresUserGesture = false
         binding.webView.addJavascriptInterface(JavascriptInterface(this), "Android")
 
-        loadVideoCall()
-    }
-
-    private fun loadVideoCall() {
         val filePath = "file:android_asset/call.html"
         binding.webView.loadUrl(filePath)
+
         binding.webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
-                initializePeer()
+                homeViewModel.initPeerClient(username)
             }
         }
-    }
-
-    fun initializePeer() {
-        callJavascriptFunction("javascript:init(\"${username}\")")
     }
 
     private fun callJavascriptFunction(functionString: String) {
         binding.webView.post {
             binding.webView.evaluateJavascript(functionString, null)
+        }
+    }
+
+    fun onPeerConnected() {
+        Toast.makeText(this, "Connected to server", Toast.LENGTH_SHORT).show()
+    }
+
+    fun onAnswerCall() {
+        GlobalScope.launch(Dispatchers.Main) {
+            binding.callLayout.visibility = View.VISIBLE
         }
     }
 
@@ -98,8 +143,10 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-    fun onPeerConnected() {
-        Log.d("LOGCAT", "onPeerConnected: ")
+    override fun onDestroy() {
+        firebaseRef.child(username).setValue(null)
+        super.onDestroy()
     }
+
 
 }
