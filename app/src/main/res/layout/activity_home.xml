@@ -13,6 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:gravity="center"
+        android:fontFamily="@font/coiny"
         android:text="Active Users"
         android:textColor="@color/white"
         android:textSize="24sp"
